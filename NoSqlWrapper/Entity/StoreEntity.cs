@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Text;
+using NoSqlWrapper.Interfaces;
 
 namespace NoSqlWrapper.Entity
 {
@@ -13,20 +14,10 @@ namespace NoSqlWrapper.Entity
     {
         public Guid Id { get; set; }
 
-        [NotMapped]
-        public object Value { get; set; }
-
-        public string TypeName
-        {
-            get { return Value.GetType().FullName; }
-            private set { }
-        }
+        [Required]
+        public string TypeName { get; set; }
 
         [Required]
-        public string Blob
-        {
-            get { return Value.ToString(); }
-            set { Value = (object)value; }
-        }
+        public string Value { get; set; }
     }
 }

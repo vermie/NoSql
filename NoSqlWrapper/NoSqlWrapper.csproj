@@ -35,6 +35,9 @@
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.5.0.5\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.configuration" />
@@ -56,9 +59,14 @@
     <Compile Include="Data\NoSQLDropCreateSeedAlways.cs" />
     <Compile Include="Data\NoSQLDropCreateSeedIfModified.cs" />
     <Compile Include="Data\NoSQLSeedData.cs" />
+    <Compile Include="Model\Blob.cs" />
+    <Compile Include="Interfaces\ISerializer.cs" />
+    <Compile Include="Interfaces\ISerializerFactory.cs" />
     <Compile Include="Interfaces\IStore.cs" />
     <Compile Include="Interfaces\IStore^T.cs" />
     <Compile Include="Entity\StoreEntity.cs" />
+    <Compile Include="Model\DefaultSerializerFactory.cs" />
+    <Compile Include="Model\JsonSerializer.cs" />
     <Compile Include="Model\Store.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -69,6 +77,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Infrastructure\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

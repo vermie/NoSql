@@ -11,17 +11,18 @@ namespace NoSqlWrapper.Data
     {
         public static void SeedDemoData(NoSQLContext context)
         {
-            
             context.Store.Add(new StoreEntity()
             {
                 Id = Guid.NewGuid(),
-                Value = "foo"
+                Value = "foo",
+                TypeName = typeof(string).FullName,
             });
 
             context.Store.Add(new StoreEntity()
             {
                 Id = Guid.NewGuid(),
-                Value = "bar"
+                Value = "bar",
+                TypeName = typeof(string).FullName,
             });
         }
     }

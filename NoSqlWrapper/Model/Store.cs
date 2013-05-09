@@ -1,26 +1,71 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using NoSqlWrapper.Data;
+using NoSqlWrapper.Entity;
 using NoSqlWrapper.Interfaces;
 
 namespace NoSqlWrapper.Model
 {
     public class Store : IStore
     {
-        private NoSQLContext _context;
+        private readonly NoSQLContext _context;
+        private readonly ISerializerFactory _serializerFactory;
 
         public Store(NoSQLContext context)
+            : this(context, new DefaultSerializerFactory())
+        {
+        }
+
+        public Store(NoSQLContext context, ISerializerFactory serializerFactory)
         {
             _context = context;
+            _serializerFactory = serializerFactory;
+        }
+
+        private Blob Serialize<T>(T instance)
+        {
+            var serializer = _serializerFactory.Get<T>();
+            var blob = serializer.Serialize(instance);
+
+            return blob;
+        }
+
+        private T Deserialize<T>(Blob blob)
+        {
+            var serializer = _serializerFactory.Get<T>();
+            var instance = serializer.Deserialize(blob);
+
+            return instance;
+        }
+
+        private StoreEntity MakeEntity(Blob blob)
+        {
+            return new StoreEntity()
+            {
+                Value = blob.Value,
+                TypeName = blob.Metadata,
+            };
+        }
+
+        private Blob MakeBlob(StoreEntity entity)
+        {
+            return new Blob()
+            {
+                Value = entity.Value,
+                Metadata = entity.TypeName,
+            };
         }
 
         public Guid Create<T>(T instance)
         {
-            var result = _context.Store.Create();
+            var blob = Serialize(instance);
+
+            var result = MakeEntity(blob);
             result.Id = Guid.NewGuid();
-            result.Value = instance;
+
             _context.Store.Add(result);
 
             return result.Id;
@@ -28,8 +73,11 @@ namespace NoSqlWrapper.Model
 
         public void Update<T>(Guid id, T instance)
         {
+            var blob = Serialize(instance);
+
             var store = _context.Store.Find(id);
-            store.Value = instance;
+            store.Value = blob.Value;
+            store.TypeName = blob.Metadata;
         }
 
         public int Delete<T>(Guid id)
@@ -44,12 +92,18 @@ namespace NoSqlWrapper.Model
         public T Retrieve<T>(Guid id)
         {
             var store = _context.Store.Find(id);
-            if (store == null) { return default(T); }
 
-            return (T)store.Value;
+            if (store == null)
+                return default(T);
+
+            var blob = MakeBlob(store);
+            // TODO: apply migrations to blob
+            var instance = Deserialize<T>(blob);
+
+            return instance;
         }
 
-        public T Retrieve<T>(System.Linq.Expressions.Expression<Func<T, bool>> expression)
+        public T Retrieve<T>(Expression<Func<T, bool>> expression)
         {
             throw new NotImplementedException();
         }
@@ -57,11 +111,16 @@ namespace NoSqlWrapper.Model
 
     public class Store<T> : IStore<T>
     {
-        private IStore _store;
+        private readonly IStore _store;
 
         public Store(NoSQLContext context)
+            : this(context, new DefaultSerializerFactory())
         {
-            _store = new Store(context);
+        }
+
+        public Store(NoSQLContext context, ISerializerFactory serializerFactory)
+        {
+            _store = new Store(context, serializerFactory);
         }
 
         public Guid Create(T instance)
@@ -84,7 +143,7 @@ namespace NoSqlWrapper.Model
             return _store.Retrieve<T>(id);
         }
 
-        public T Retrieve(System.Linq.Expressions.Expression<Func<T, bool>> expression)
+        public T Retrieve(Expression<Func<T, bool>> expression)
         {
             return _store.Retrieve(expression);
         }

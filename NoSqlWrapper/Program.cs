@@ -26,20 +26,26 @@ namespace NoSqlWrapper
 
 
             // Temp test of the system
+            Guid id1, id2;
             using (var context = new NoSQLContext())
             {
                 Store<string> s = new Store<string>(context);
 
-                var id1 = s.Create(@"P&P test 1");
-                var id2 = s.Create(@"P&P test 2");
+                id1 = s.Create(@"P&P test 1");
+                id2 = s.Create(@"P&P test 2");
+
+                context.SaveChanges();
+            }
+
+            using (var context = new NoSQLContext())
+            {
+                Store<string> s = new Store<string>(context);
 
                 var foo = s.Retrieve(id1);
                 var bar = s.Retrieve(id2);
 
                 Console.WriteLine(foo);
                 Console.WriteLine(bar);
-
-                context.SaveChanges();
             }
 
             Console.ReadKey();
