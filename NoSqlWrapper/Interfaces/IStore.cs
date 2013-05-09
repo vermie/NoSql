@@ -6,15 +6,12 @@ using System.Text;
 
 namespace NoSqlWrapper.Interfaces
 {
-    public interface IStoreWithKey<TKey>
+    public interface IStore
     {
-        TKey Create<T>(T instance);
-        void Update<T>(TKey id, T instance);
-        int Delete<T>(TKey id);
-        T Retrieve<T>(TKey id);
+        Guid Create<T>(T instance);
+        void Update<T>(Guid id, T instance);
+        int Delete<T>(Guid id);
+        T Retrieve<T>(Guid id);
         T Retrieve<T>(Expression<Func<T, bool>> expression);
-    }
-    public interface IStore : IStoreWithKey<Guid>
-    {
     }
 }
