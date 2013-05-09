@@ -1,0 +1,2 @@
+# ignore downloaded nuget packages (enable nuget's 'download on build' option)
+*/
