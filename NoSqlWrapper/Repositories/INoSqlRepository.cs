@@ -4,9 +4,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace NoSqlWrapper.Interfaces
+namespace NoSqlWrapper.Repositories
 {
-    public interface IStore
+    public interface INoSqlRepository
     {
         Guid Create<T>(T instance);
         void Update<T>(Guid id, T instance);
@@ -14,4 +14,6 @@ namespace NoSqlWrapper.Interfaces
         T Retrieve<T>(Guid id);
         T Retrieve<T>(Expression<Func<T, bool>> expression);
     }
+
+    
 }

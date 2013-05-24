@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NoSqlWrapper")]
+[assembly: AssemblyTitle("NoSqlWrapper.TestHarness.Console")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("State of Illinois")]
-[assembly: AssemblyProduct("NoSqlWrapper")]
-[assembly: AssemblyCopyright("Copyright © State of Illinois 2013")]
+[assembly: AssemblyCompany("Hewlett-Packard")]
+[assembly: AssemblyProduct("NoSqlWrapper.TestHarness.Console")]
+[assembly: AssemblyCopyright("Copyright © Hewlett-Packard 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -20,9 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("7a290959-819d-4b4c-8121-a95a687a904d")]
-
-[assembly: InternalsVisibleTo("NoSqlWrapper.TestHarness.Console")]
+[assembly: Guid("52e4177b-7202-472d-a550-2937dba4513a")]
 
 // Version information for an assembly consists of the following four values:
 //

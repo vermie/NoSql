@@ -4,9 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace NoSqlWrapper.Interfaces
+namespace NoSqlWrapper.Repositories
 {
-    public interface IStore<T>
+    //I am not sure what value this interface adds? I would rather see it go away kind of
+    public interface INoSqlRepository<T>
     {
         Guid Create(T instance);
         void Update(Guid id, T instance);

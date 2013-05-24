@@ -1,4 +1,4 @@
-﻿using NoSqlWrapper.Entity;
+﻿using NoSqlWrapper.Data.Entity;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -10,6 +10,6 @@ namespace NoSqlWrapper.Data
     public class NoSQLContext : DbContext
     {
         public DbSet<StoreEntity> Store { get; set; }
-        
+        public DbSet<TypeVersionEntity> TypeVersion { get; set; }
     }
 }

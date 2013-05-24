@@ -1,4 +1,4 @@
-﻿using NoSqlWrapper.Entity;
+﻿using NoSqlWrapper.Data.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,18 +11,24 @@ namespace NoSqlWrapper.Data
     {
         public static void SeedDemoData(NoSQLContext context)
         {
+            context.TypeVersion.Add(new TypeVersionEntity()
+            {
+                TypeName = typeof(String).AssemblyQualifiedName,
+                TypeSignature = String.Empty,
+                TypeVersionId = Guid.NewGuid()
+            });
             context.Store.Add(new StoreEntity()
             {
-                Id = Guid.NewGuid(),
+                StoreId = Guid.NewGuid(),
                 Value = "foo",
-                TypeName = typeof(string).FullName,
+                TypeVersionId = context.TypeVersion.First().TypeVersionId
             });
 
             context.Store.Add(new StoreEntity()
             {
-                Id = Guid.NewGuid(),
+                StoreId = Guid.NewGuid(),
                 Value = "bar",
-                TypeName = typeof(string).FullName,
+                TypeVersionId = context.TypeVersion.First().TypeVersionId
             });
         }
     }

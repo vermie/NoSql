@@ -5,19 +5,22 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Text;
-using NoSqlWrapper.Interfaces;
 
-namespace NoSqlWrapper.Entity
+namespace NoSqlWrapper.Data.Entity
 {
     [Table("Store")]
-    public class StoreEntity
+    public class StoreEntity : IStoreEntity
     {
-        public Guid Id { get; set; }
-
-        [Required]
-        public string TypeName { get; set; }
+        [Key()]
+        [Column(Order=0)]
+        public Guid StoreId { get; set; }
+        [Key()]
+        [Column(Order = 1)]
+        public Guid TypeVersionId { get; set; }
 
         [Required]
         public string Value { get; set; }
+
+        public TypeVersionEntity TypeVersion { get; set; }
     }
 }

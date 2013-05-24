@@ -3,6 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoSqlWrapper", "NoSqlWrapper\NoSqlWrapper.csproj", "{3258DD11-ED4D-425D-A7C2-DF8AE70232A5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9C922054-09C8-4BA1-80BA-A1D68D3D81B4}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test Harnesses", "Test Harnesses", "{BB953227-62A3-4131-B8CD-527D36ABCF4E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoSqlWrapper.TestHarness.Console", "NoSqlWrapper.TestHarness.Console\NoSqlWrapper.TestHarness.Console.csproj", "{29C79FAB-0F41-45DB-A1A0-EC73347CF373}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,8 +24,15 @@ Global
 		{3258DD11-ED4D-425D-A7C2-DF8AE70232A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3258DD11-ED4D-425D-A7C2-DF8AE70232A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3258DD11-ED4D-425D-A7C2-DF8AE70232A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{29C79FAB-0F41-45DB-A1A0-EC73347CF373}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{29C79FAB-0F41-45DB-A1A0-EC73347CF373}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{29C79FAB-0F41-45DB-A1A0-EC73347CF373}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{29C79FAB-0F41-45DB-A1A0-EC73347CF373}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{29C79FAB-0F41-45DB-A1A0-EC73347CF373} = {BB953227-62A3-4131-B8CD-527D36ABCF4E}
 	EndGlobalSection
 EndGlobal
