@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using NoSqlWrapper.Data.Entity;
@@ -23,15 +24,41 @@ namespace NoSqlWrapper.Data
             item.StoreId = storeEntity.StoreId;
             item.TypeVersionId = storeEntity.TypeVersionId;
             item.Value = storeEntity.Value;
+            item.DateCreated = storeEntity.DateCreated;
+            item.LastUpdated = storeEntity.LastUpdated;
+        }
+        public static void UpdateStore(this NoSQLContext context, IStoreEntity storeEntity)
+        {
+            var entity = context.Store.Find(storeEntity.StoreId);
+
+            entity.DateCreated = storeEntity.DateCreated;
+            entity.LastUpdated = storeEntity.LastUpdated;
+            entity.TypeVersionId = storeEntity.TypeVersionId;
+            entity.Value = storeEntity.Value;
         }
 
-        public static IEnumerable<IStoreEntity> FindStore(this NoSQLContext context, Guid storeId)
+
+        public static IStoreArchiveEntity NewStoreArchive(this NoSQLContext context)
         {
-            return context.Store.Where(a => a.StoreId == storeId).ToArray();
+            return new StoreArchiveEntity();
         }
-        public static IStoreEntity TryFindStore(this NoSQLContext context, Guid storeId, Guid typeVersionId)
+        public static void AddStoreArchive(this NoSQLContext context, IStoreArchiveEntity storeEntity)
         {
-            return context.Store.Where(a => a.StoreId == storeId && a.TypeVersionId == typeVersionId).FirstOrDefault();
+            var item = context.StoreArchive.Create();
+            context.StoreArchive.Add(item);
+
+            item.LastUpdated = storeEntity.LastUpdated;
+            item.DateArchived = storeEntity.DateArchived;
+            item.DateCreated = storeEntity.DateCreated;
+            item.StoreArchiveId = storeEntity.StoreArchiveId;
+            item.StoreId = storeEntity.StoreId;
+            item.TypeVersionId = storeEntity.TypeVersionId;
+            item.Value = storeEntity.Value;
+        }
+
+        public static IStoreEntity TryFindStore(this NoSQLContext context, Guid storeId)
+        {
+            return context.Store.Where(a => a.StoreId == storeId).FirstOrDefault();
         }
         public static Int32 DeleteStore(this NoSQLContext context, params IStoreEntity[] storeItems)
         {
@@ -57,12 +84,22 @@ namespace NoSqlWrapper.Data
             item.TypeSignature = typeVersionEntity.TypeSignature;
             item.TypeVersionId = typeVersionEntity.TypeVersionId;
             item.AssemblyName = typeVersionEntity.AssemblyName;
+            item.DateCreated = typeVersionEntity.DateCreated;
         }
 
         public static ITypeVersionEntity TryFindTypeVersion(this NoSQLContext context,String assemblyName, String typeName, String signature)
         {
-            var item = context.TypeVersion
-                .Where(a => a.TypeName == typeName && a.AssemblyName == a.AssemblyName && a.TypeSignature == signature).FirstOrDefault();
+            Func<TypeVersionEntity,Boolean> delegateSearch = 
+                a => a.TypeName == typeName && a.AssemblyName == a.AssemblyName && a.TypeSignature == signature;
+
+            //search local first...
+            var item = context.TypeVersion.Local.Where(delegateSearch).FirstOrDefault();
+
+            //now go search against real db
+            if (item == null)
+            {
+                item = context.TypeVersion.Where(delegateSearch).FirstOrDefault();
+            }
 
             return item as ITypeVersionEntity;
         }

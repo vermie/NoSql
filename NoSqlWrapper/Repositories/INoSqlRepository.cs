@@ -10,9 +10,9 @@ namespace NoSqlWrapper.Repositories
     {
         Guid Create<T>(T instance);
         void Update<T>(Guid id, T instance);
-        int Delete<T>(Guid id);
-        T Retrieve<T>(Guid id);
-        T Retrieve<T>(Expression<Func<T, bool>> expression);
+        void Delete<T>(Guid id);
+        T TryRetrieve<T>(Guid id);
+        //T Retrieve<T>(Expression<Func<T, bool>> expression);
     }
 
     

@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Data.Entity.ModelConfiguration;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace NoSqlWrapper.Data.Entity
 {
-    [Table("Store")]
-    public class StoreEntity : IStoreEntity
+    [Table("StoreArchive")]
+    public class StoreArchiveEntity : IStoreArchiveEntity
     {
         [Key()]
-        [Column(Order=0)]
+        [Column(Order = 0)]
+        public Guid StoreArchiveId { get; set; }
+
         public Guid StoreId { get; set; }
         public Guid TypeVersionId { get; set; }
 
@@ -29,7 +31,18 @@ namespace NoSqlWrapper.Data.Entity
             get;
             set;
         }
+        public DateTime DateArchived
+        {
+            get;
+            set;
+        }
 
         public TypeVersionEntity TypeVersion { get; set; }
+    }
+
+    public interface IStoreArchiveEntity : IStoreEntity
+    {
+        Guid StoreArchiveId { get; set; }
+        DateTime DateArchived { get; set; }
     }
 }

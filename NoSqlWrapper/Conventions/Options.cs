@@ -17,6 +17,11 @@ namespace NoSqlWrapper.Conventions
     //
     public class Options
     {
+        public Boolean ArchiveVersionChanges
+        {
+            get;
+            set;
+        }
         public Boolean VersioningEnabled
         {
             get;
@@ -26,6 +31,20 @@ namespace NoSqlWrapper.Conventions
         {
             get;
             set;
+        }
+
+        public Dependencies.IDateTimeProvider DateTimeProvider
+        {
+            get;
+            set;
+        }
+
+        public Options()
+        {
+            this.ArchiveVersionChanges = false;
+            this.VersioningEnabled = false;
+            this.StrictDeserializationEnabled = false;
+            this.DateTimeProvider = new Dependencies.DefaultDateTimeProvider();
         }
     }
 }

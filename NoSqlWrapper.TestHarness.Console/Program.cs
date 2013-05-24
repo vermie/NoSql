@@ -14,14 +14,15 @@ namespace NoSqlWrapper.TestHarness
     {
         static void Main(string[] args)
         {
-            DoIt();
-            return;
+            DbInitializationTools.DbInitializerStrategyFactory("CreateIfChanged");
+
+            //DoIt();
+            //return;
 
             // begging for configuring the initialization strategy ... eh
             string message = ConfigurationManager.AppSettings["howdy"];
             Console.WriteLine("from the configuration file: " + message);
-
-            DbInitializationTools.DbInitializerStrategyFactory("CreateIfChanged");
+       
             using (var context = new NoSQLContext())
             {
                 var count = context.Store.Count();
@@ -70,7 +71,7 @@ namespace NoSqlWrapper.TestHarness
 
             using (var store = new Store())
             {
-                var readBack = store.Retrieve<SimplePoco>(new Guid("DA722261-062C-43DF-B64C-B17829A58440"));
+                var readBack = store.TryRetrieve<SimplePoco>(new Guid("DA722261-062C-43DF-B64C-B17829A58440"));
 
                 var yo = 3334;
             }

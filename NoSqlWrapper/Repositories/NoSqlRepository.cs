@@ -74,15 +74,40 @@ namespace NoSqlWrapper.Repositories
                 typeVersion.AssemblyName = assemblyName;
                 typeVersion.TypeName = typeName;
                 typeVersion.TypeSignature = typeSignature;
+                typeVersion.DateCreated = this.Options.DateTimeProvider.Now;
                 this.Context.AddTypeVersion(typeVersion);
-                this.Context.SaveChanges();
+                //this.Context.SaveChanges();
             }
 
             return typeVersion;
         }
         private String GetTypeSignature<T>()
         {
-            return this.TypeVersioner.GetTypeSignature<T>();
+            if (this.Options.VersioningEnabled)
+            {
+                return this.TypeVersioner.GetTypeSignature<T>();
+            }
+            else
+            {
+                return String.Empty;
+            }
+        }
+
+        private String ResolveMigrations<T>(IStoreEntity storeEntity)
+        {
+            //short circuit if migrations are disabled??
+
+            //find the type version for what we have loaded
+            var typeVersion = this.ResolveTypeVersion<T>();
+
+            //version mismatch, apply a migration strategy (use decorator???)
+            if (typeVersion.TypeVersionId != storeEntity.TypeVersionId)
+            {
+                //TODO
+            }
+
+            //for now just return this JSON
+            return storeEntity.Value;
         }
 
         #region INoSqlRepository
@@ -95,6 +120,8 @@ namespace NoSqlWrapper.Repositories
             var entity = this.Context.NewStore();
             entity.TypeVersionId = typeVersion.TypeVersionId;
             entity.Value = value;
+            entity.DateCreated = this.Options.DateTimeProvider.Now;
+            entity.LastUpdated = entity.DateCreated;
             this.Context.AddStore(entity);
 
             return entity.StoreId;
@@ -103,59 +130,66 @@ namespace NoSqlWrapper.Repositories
         public void Update<T>(Guid id, T instance)
         {
             var value = Serialize(instance);
-
             var typeVersion = this.ResolveTypeVersion<T>();
 
             var store = Context.Store.Find(id);
-            if (store.TypeVersionId == typeVersion.TypeVersionId)
+
+            //store this version
+            if ((store.TypeVersionId != typeVersion.TypeVersionId) &&
+                (this.Options.ArchiveVersionChanges))
             {
                 //update if the version is the same
-                store.Value = value;
+                var archive = this.Context.NewStoreArchive();
+                archive.DateArchived = this.Options.DateTimeProvider.Now;
+                archive.DateCreated = store.DateCreated;
+                archive.LastUpdated = store.LastUpdated;
+                archive.StoreArchiveId = Guid.NewGuid();
+                archive.StoreId = store.StoreId;
+                archive.TypeVersionId = store.TypeVersionId;
+                archive.Value = store.Value;
+
+                this.Context.AddStoreArchive(archive);
             }
-            else
-            {
-                //insert if the version is different...but with same key
-                var entity = this.Context.NewStore();
-                entity.StoreId = id;
-                entity.TypeVersionId = typeVersion.TypeVersionId;
-                entity.Value = value;
-                this.Context.AddStore(entity);
-            }
+
+            store.TypeVersionId = typeVersion.TypeVersionId;
+            store.Value = value;
+            store.LastUpdated = this.Options.DateTimeProvider.Now;
+
+            this.Context.UpdateStore(store);
         }
 
-        public int Delete<T>(Guid id)
+        public void Delete<T>(Guid id)
         {
             //delete ALL versions at this point
-            var stores = Context.FindStore(id);
-            if (stores.Any())
+            var stores = Context.TryFindStore(id);
+            if (stores != null)
             {
-                Context.DeleteStore(stores.ToArray());
+                Context.DeleteStore(stores);
             }
-
-            return stores.Count();
         }
 
-        public T Retrieve<T>(Guid id)
+        public T TryRetrieve<T>(Guid id)
         {
-            var typeVersion = this.ResolveTypeVersion<T>();
+            //try to find the item
+            var store = Context.TryFindStore(id);
 
-            var stores = Context.FindStore(id);
-
-            var store = Context.Store.Find(id,typeVersion.TypeVersionId);
-
+            //if we cannot find it return default
             if (store == null)
                 return default(T);
 
+            //resolve any migrations here.
+            var finalBlob = this.ResolveMigrations<T>(store);
+
             // TODO: apply migrations to blob
-            var instance = Deserialize<T>(store.Value);
+            var instance = Deserialize<T>(finalBlob);
 
             return instance;
         }
 
-        public T Retrieve<T>(Expression<Func<T, bool>> expression)
-        {
-            throw new NotImplementedException();
-        }
+        //public T Retrieve<T>(Expression<Func<T, bool>> expression)
+        //{
+        //    throw new NotImplementedException();
+        //}
         #endregion
     }
 
@@ -183,19 +217,14 @@ namespace NoSqlWrapper.Repositories
             _store.Update(id, instance);
         }
 
-        public int Delete(Guid id)
+        public void Delete(Guid id)
         {
-            return _store.Delete<T>(id);
+             _store.Delete<T>(id);
         }
 
         public T Retrieve(Guid id)
         {
-            return _store.Retrieve<T>(id);
-        }
-
-        public T Retrieve(Expression<Func<T, bool>> expression)
-        {
-            return _store.Retrieve(expression);
+            return _store.TryRetrieve<T>(id);
         }
     }
 

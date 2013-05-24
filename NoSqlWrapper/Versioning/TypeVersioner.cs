@@ -43,9 +43,10 @@ namespace NoSqlWrapper.Versioning
                 System.Reflection.BindingFlags.Instance)
                 .OrderBy(a => a.Name);
 
-            //generate the signature
+            //generate the signature 
             signatureBuilder.AppendLine(type.FullName);
             properties.ForEach(a => signatureBuilder.AppendLine(this.VersionTypeProperty(a)));
+            //signatureBuilder.AppendLine();
 
             foreach (var item in properties)
             {
@@ -56,11 +57,8 @@ namespace NoSqlWrapper.Versioning
         {
             Type propertyType = propertyInfo.PropertyType;
 
-            String stringy;
-
             return propertyInfo.Name 
                 + ":" 
-                //+ (propertyType.IsArray ? "[]" : "") 
                 + propertyType.FullName;
         }
 

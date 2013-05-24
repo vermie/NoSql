@@ -6,5 +6,7 @@ namespace NoSqlWrapper.Data.Entity
         Guid StoreId { get; set; }
         Guid TypeVersionId { get; set; }
         string Value { get; set; }
+        DateTime DateCreated { get; set; }
+        DateTime LastUpdated { get; set; }
     }
 }

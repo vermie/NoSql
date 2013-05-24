@@ -65,6 +65,7 @@
   <ItemGroup>
     <Compile Include="Conventions\Options.cs" />
     <Compile Include="Data\DbInitializationTools.cs" />
+    <Compile Include="Data\Entity\StoreArchiveEntity.cs" />
     <Compile Include="Data\NoSqlContextExtensions.cs" />
     <Compile Include="Data\Entity\IStoreEntity.cs" />
     <Compile Include="Data\Entity\ITypeVersionEntity.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="Data\NoSQLDropCreateSeedAlways.cs" />
     <Compile Include="Data\NoSQLDropCreateSeedIfModified.cs" />
     <Compile Include="Data\NoSQLSeedData.cs" />
+    <Compile Include="Dependencies\IDateTimeProvider.cs" />
     <Compile Include="IStore.cs" />
     <Compile Include="Exceptions\NoSqlWrapperException.cs" />
     <Compile Include="Serialization\ISerializer.cs" />

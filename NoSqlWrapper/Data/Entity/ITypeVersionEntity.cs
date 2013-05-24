@@ -7,6 +7,6 @@ namespace NoSqlWrapper.Data.Entity
         string AssemblyName { get; set; }
         string TypeName { get; set; }
         string TypeSignature { get; set; }
-        Int32 Sequence { get; }
+        DateTime DateCreated { get; set; }
     }
 }

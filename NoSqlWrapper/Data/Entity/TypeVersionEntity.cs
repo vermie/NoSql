@@ -17,7 +17,7 @@ namespace NoSqlWrapper.Data.Entity
         {
             get;
             set;
-        }
+        }  
         [MaxLength(1000)]
         public String AssemblyName
         {
@@ -35,12 +35,13 @@ namespace NoSqlWrapper.Data.Entity
             get;
             set;
         }
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Int32 Sequence
+
+        public DateTime DateCreated
         {
             get;
             set;
         }
+        
 
         public virtual ICollection<StoreEntity> StoreItems
         {
