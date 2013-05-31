@@ -41,9 +41,9 @@ namespace NoSqlWrapper.Conventions
 
         public Options()
         {
-            this.ArchiveVersionChanges = false;
-            this.VersioningEnabled = false;
-            this.StrictDeserializationEnabled = false;
+            this.ArchiveVersionChanges = true;
+            this.VersioningEnabled = true;
+            this.StrictDeserializationEnabled = true;
             this.DateTimeProvider = new Dependencies.DefaultDateTimeProvider();
         }
     }

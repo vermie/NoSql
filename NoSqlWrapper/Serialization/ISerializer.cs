@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NoSqlWrapper.Conventions;
 
 namespace NoSqlWrapper.Serialization
 {
     public interface ISerializer<T>
     {
-        Boolean StrictSerializationEnabled { get; set; }
+        Options Options { get; set; }
 
         String Serialize(T value);
         T Deserialize(String blob);

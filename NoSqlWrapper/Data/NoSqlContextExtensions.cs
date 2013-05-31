@@ -87,6 +87,22 @@ namespace NoSqlWrapper.Data
             item.DateCreated = typeVersionEntity.DateCreated;
         }
 
+        public static ITypeVersionEntity TryFindTypeVersion(this NoSQLContext context, Guid typeVersionId)
+        {
+            Func<TypeVersionEntity, Boolean> delegateSearch =
+                a => a.TypeVersionId == typeVersionId ;
+
+            //search local first...
+            var item = context.TypeVersion.Local.Where(delegateSearch).FirstOrDefault();
+
+            //now go search against real db
+            if (item == null)
+            {
+                item = context.TypeVersion.Where(delegateSearch).FirstOrDefault();
+            }
+
+            return item as ITypeVersionEntity;
+        }
         public static ITypeVersionEntity TryFindTypeVersion(this NoSQLContext context,String assemblyName, String typeName, String signature)
         {
             Func<TypeVersionEntity,Boolean> delegateSearch = 

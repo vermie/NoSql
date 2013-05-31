@@ -11,7 +11,7 @@ using NoSqlWrapper.Versioning;
 namespace NoSqlWrapper
 {
     //this should be the facade
-    public class Store : NoSqlRepository,IStore, IDisposable
+    public partial class Store : NoSqlRepository,IStore, IDisposable
     {
         private readonly NoSQLContext _context;
 

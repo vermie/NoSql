@@ -36,6 +36,11 @@ namespace NoSqlWrapper.Versioning
                 typeList.Add(type);
             }
 
+            if (this.IsCommonType(type))
+            {
+                return;
+            }
+
 
             //list of type properties ordered by name
             var properties = type.GetProperties(
@@ -53,6 +58,20 @@ namespace NoSqlWrapper.Versioning
                 VersionType(item.PropertyType, signatureBuilder, typeList);
             }
         }
+
+        private Boolean IsCommonType(Type type)
+        {
+            if ((type.IsPrimitive) || 
+                (type == typeof(Decimal)) ||
+                (type == typeof(String)) ||
+                (type == typeof(DateTime)))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         private String VersionTypeProperty(PropertyInfo propertyInfo)
         {
             Type propertyType = propertyInfo.PropertyType;

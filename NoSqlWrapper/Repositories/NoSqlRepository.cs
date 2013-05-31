@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using NoSqlWrapper.Conventions;
 using NoSqlWrapper.Data;
@@ -39,6 +40,43 @@ namespace NoSqlWrapper.Repositories
         {
         }
 
+        protected Guid? TryFindKeyByConvention<T>(T instance)
+        {
+            var type = typeof(T);
+            PropertyInfo keyProperty=null;
+
+            //look for attribute first!
+            var properties = NoSqlKeyAttribute.FindKeyProperty<T>();
+            if (properties.Length == 1)
+            {
+                if (properties[0].PropertyType != typeof(Guid))
+                {
+                    throw new Exceptions.NoSqlWrapperException("NoSqlKeyAttribute must be defined on a property of type Guid");
+                }
+
+                keyProperty = properties[0];
+            }
+            if (properties.Length > 1)
+            {
+                throw new Exceptions.NoSqlWrapperException(String.Format(
+                    "More than one NoSqlKeyAttribute is defined for type {0}",type.FullName));
+            }
+
+            //convention 2...try by class name + id
+            keyProperty = type.GetProperty(type.Name + "Id", typeof(Guid));
+
+            //last convention...just look for Id
+            if (keyProperty == null)
+                keyProperty = type.GetProperty("Id", typeof(Guid));
+
+            if (keyProperty != null)
+            {
+                return (Guid)keyProperty.GetValue(instance, null);
+            }
+
+            return null;
+        }
+
         public NoSqlRepository(NoSQLContext context,Options options, ISerializerFactory serializerFactory,ITypeVersioner versioner)
         {
             //set the external context
@@ -51,32 +89,71 @@ namespace NoSqlWrapper.Repositories
 
         private String Serialize<T>(T instance)
         {
-            var serializer = SerializerFactory.Get<T>();
+            var serializer = SerializerFactory.Get<T>(this.Options);
             return serializer.Serialize(instance);
         }
         private T Deserialize<T>(String value)
         {
-            var serializer = SerializerFactory.Get<T>();
+            var serializer = SerializerFactory.Get<T>(this.Options);
             return serializer.Deserialize(value);
         }
 
         private ITypeVersionEntity ResolveTypeVersion<T>()
         {
-            //look in cache at some point...
-            var typeName = typeof(T).FullName;
-            var assemblyName = typeof(T).Assembly.GetName().Name;
-            var typeSignature = this.GetTypeSignature<T>();
+            //get a custom type version if its defined (do THIS first)
+            ITypeVersionEntity typeVersion = this.TryResolveCustomTypeVersion<T>();
 
-            ITypeVersionEntity typeVersion = this.Context.TryFindTypeVersion(assemblyName,typeName, typeSignature);
+            //if not defined, look for an existing type version
+            if (typeVersion == null)
+            {
+                //look in cache at some point...
+                var typeName = typeof(T).FullName;
+                var assemblyName = typeof(T).Assembly.GetName().Name;
+                var typeSignature = this.GetTypeSignature<T>();
+                typeVersion = this.Context.TryFindTypeVersion(assemblyName, typeName, typeSignature);
+            }
+
+            //if we are still null, add the type version
             if (typeVersion == null)
             {
                 typeVersion = this.Context.NewTypeVersion();
-                typeVersion.AssemblyName = assemblyName;
-                typeVersion.TypeName = typeName;
-                typeVersion.TypeSignature = typeSignature;
+                typeVersion.AssemblyName = typeof(T).Assembly.GetName().Name;
+                typeVersion.TypeName = typeof(T).FullName;
+                typeVersion.TypeSignature = this.GetTypeSignature<T>();
                 typeVersion.DateCreated = this.Options.DateTimeProvider.Now;
                 this.Context.AddTypeVersion(typeVersion);
                 //this.Context.SaveChanges();
+            }
+
+            return typeVersion;
+        }
+        private ITypeVersionEntity TryResolveCustomTypeVersion<T>()
+        {
+            var typeSignatureAttribute = typeof(T).GetCustomAttribute<TypeSignatureAttribute>();
+            ITypeVersionEntity typeVersion = null;
+
+            if (typeSignatureAttribute != null)
+            {
+                typeVersion = this.Context.TryFindTypeVersion(typeSignatureAttribute.TypeVersionId);
+
+                if (typeVersion == null)
+                {
+                    typeVersion = this.Context.NewTypeVersion();
+                    typeVersion.AssemblyName = typeof(T).Assembly.GetName().Name;
+                    typeVersion.DateCreated = this.Options.DateTimeProvider.Now;
+                    typeVersion.TypeName = typeof(T).FullName;
+                    typeVersion.TypeSignature = typeSignatureAttribute.TypeSignature;
+                    typeVersion.TypeVersionId = typeSignatureAttribute.TypeVersionId;
+                    this.Context.AddTypeVersion(typeVersion);
+                }
+                else
+                {
+                    if (String.Compare(typeVersion.TypeSignature, typeSignatureAttribute.TypeSignature, false) != 0)
+                    {
+                        //need better exception here..
+                        throw new Exceptions.NoSqlWrapperException("Type signature does not match!");
+                    }
+                }
             }
 
             return typeVersion;
@@ -93,7 +170,7 @@ namespace NoSqlWrapper.Repositories
             }
         }
 
-        private String ResolveMigrations<T>(IStoreEntity storeEntity)
+        private String ApplyMigrations<T>(IStoreEntity storeEntity)
         {
             //short circuit if migrations are disabled??
 
@@ -134,7 +211,7 @@ namespace NoSqlWrapper.Repositories
 
             var store = Context.Store.Find(id);
 
-            //store this version
+            //archive if enabled and typeversion is different
             if ((store.TypeVersionId != typeVersion.TypeVersionId) &&
                 (this.Options.ArchiveVersionChanges))
             {
@@ -151,6 +228,7 @@ namespace NoSqlWrapper.Repositories
                 this.Context.AddStoreArchive(archive);
             }
 
+            //update the living object
             store.TypeVersionId = typeVersion.TypeVersionId;
             store.Value = value;
             store.LastUpdated = this.Options.DateTimeProvider.Now;
@@ -178,54 +256,16 @@ namespace NoSqlWrapper.Repositories
                 return default(T);
 
             //resolve any migrations here.
-            var finalBlob = this.ResolveMigrations<T>(store);
+            var finalBlob = this.ApplyMigrations<T>(store);
 
-            // TODO: apply migrations to blob
+            //deserialize the blob now
             var instance = Deserialize<T>(finalBlob);
 
             return instance;
         }
 
-        //public T Retrieve<T>(Expression<Func<T, bool>> expression)
-        //{
-        //    throw new NotImplementedException();
-        //}
         #endregion
     }
 
-    public class NoSqlRepository<T> : INoSqlRepository<T>
-    {
-        private readonly INoSqlRepository _store;
-
-        public NoSqlRepository(NoSQLContext context)
-            : this(context,new Options(), new DefaultSerializerFactory(), new TypeVersioner())
-        {
-        }
-
-        public NoSqlRepository(NoSQLContext context, Options options, ISerializerFactory serializerFactory, ITypeVersioner versioner)
-        {
-            _store = new NoSqlRepository(context, options, serializerFactory, versioner);
-        }
-
-        public Guid Create(T instance)
-        {
-            return _store.Create(instance);
-        }
-
-        public void Update(Guid id, T instance)
-        {
-            _store.Update(id, instance);
-        }
-
-        public void Delete(Guid id)
-        {
-             _store.Delete<T>(id);
-        }
-
-        public T Retrieve(Guid id)
-        {
-            return _store.TryRetrieve<T>(id);
-        }
-    }
 
 }

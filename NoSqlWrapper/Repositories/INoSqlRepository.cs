@@ -9,9 +9,15 @@ namespace NoSqlWrapper.Repositories
     public interface INoSqlRepository
     {
         Guid Create<T>(T instance);
+
+        //void Update<T>(T instance);
         void Update<T>(Guid id, T instance);
+
+        //void Delete<T>(T instance);
         void Delete<T>(Guid id);
+
         T TryRetrieve<T>(Guid id);
+
         //T Retrieve<T>(Expression<Func<T, bool>> expression);
     }
 

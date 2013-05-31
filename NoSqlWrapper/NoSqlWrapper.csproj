@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Conventions\NoSqlKeyAttribute.cs" />
     <Compile Include="Conventions\Options.cs" />
     <Compile Include="Data\DbInitializationTools.cs" />
     <Compile Include="Data\Entity\StoreArchiveEntity.cs" />
@@ -77,6 +78,8 @@
     <Compile Include="Dependencies\IDateTimeProvider.cs" />
     <Compile Include="IStore.cs" />
     <Compile Include="Exceptions\NoSqlWrapperException.cs" />
+    <Compile Include="Migration\IMigration.cs" />
+    <Compile Include="Repositories\NoSqlRepository^T.cs" />
     <Compile Include="Serialization\ISerializer.cs" />
     <Compile Include="Serialization\ISerializerFactory.cs" />
     <Compile Include="Repositories\INoSqlRepository.cs" />
@@ -87,6 +90,7 @@
     <Compile Include="Repositories\NoSqlRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Store.cs" />
+    <Compile Include="StoreStatics.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="Versioning\ITypeVersioner.cs" />
     <Compile Include="Versioning\TypeVersioner.cs" />
