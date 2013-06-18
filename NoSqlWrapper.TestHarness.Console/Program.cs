@@ -18,6 +18,9 @@ namespace NoSqlWrapper.TestHarness
         {
             try
             {
+                YoIt fuck = new YoIt();
+                fuck.Yo();
+
                 DbInitializationTools.DbInitializerStrategyFactory("CreateIfChanged");
 
                 Console.WriteLine("Clear database?");
@@ -33,8 +36,8 @@ namespace NoSqlWrapper.TestHarness
                 }
 
                 //DoIt();
-                MigrationsFuck();
-                return;
+                //MigrationsFuck();
+                //return;
 
                 // Temp test of the system
                 Guid id1, id2;
